@@ -1,21 +1,29 @@
 import { ChangeEvent, FormEvent, ReactElement, useState } from "react";
 import styles from "../../styles/login.module.css";
+import axios from "axios";
 
 type Login = {
   userId: string;
   userPw: string;
 };
 
-export default function login() {
+// 리소스 접근 허용
+axios.defaults.headers["Access-Control-Allow-Origin"] = "*";
+// 서로 다른 도메인간 쿠키 전달 허용
+axios.defaults.withCredentials = true;
+
+export default function Login() {
   const [reqBody, setReqBody] = useState<Login>({
     userId: "",
     userPw: "",
   });
+
   const [userIdValidation, setUserIdValidation] = useState<ReactElement | null>(
     <div className={styles.validation}>
       <p>{"아이디 : 영문 필수 4~12글자 (숫자 및 _ 기호 사용가능)"}</p>
     </div>
   );
+
   const [userPwValidation, setUserPwValidation] = useState<ReactElement | null>(
     <div className={styles.validation}>
       <p>
@@ -25,6 +33,25 @@ export default function login() {
       </p>
     </div>
   );
+
+  const loginEvent = async () => {
+    const account = reqBody.userId;
+    const password = reqBody.userPw;
+    const response = await axios.post(
+      process.env.NEXT_PUBLIC_API_URL + "api/login",
+      { account, password }
+    );
+    if (
+      response.status === 200 &&
+      response.data.message === "login sucsses!!"
+    ) {
+      alert("로그인 성공!");
+    } else if (response.status !== 200) {
+      alert("통신 실패!");
+    } else {
+      alert("로그인 실패! 다시 로그인 해주세요!");
+    }
+  };
 
   const handleValue = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -37,6 +64,7 @@ export default function login() {
 
   const onSubmitEvent = () => {
     console.log("onSubmit!");
+    loginEvent();
   };
 
   const loginValidation = (e: FormEvent<HTMLFormElement>) => {
@@ -78,7 +106,10 @@ export default function login() {
     if (result) {
       onSubmitEvent();
     }
-    console.log(reqBody, result);
+    console.log(
+      "유효성검사 통과! " + " 아이디는 : " + reqBody.userId,
+      ", 암호는 : " + reqBody.userPw + " 입니다."
+    );
   };
 
   return (
