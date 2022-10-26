@@ -13,31 +13,17 @@ export default function Login() {
     userPw: "",
   });
 
-  const [userIdValidation, setUserIdValidation] = useState<ReactElement | null>(
-    <div className={styles.validation}>
-      <p>{"아이디 : 영문 필수 4~12글자 (숫자 및 _ 기호 사용가능)"}</p>
-    </div>
-  );
-
-  const [userPwValidation, setUserPwValidation] = useState<ReactElement | null>(
-    <div className={styles.validation}>
-      <p>
-        {
-          "비밀번호 : 첫글자는 대문자이며 영문,숫자, ( _ ! @ # $ ( ) % ^ ) 기호 사용가능"
-        }
-      </p>
-    </div>
-  );
+  const [validationComment, setValidationComment] =
+    useState<ReactElement | null>(null);
 
   const loginEvent = async () => {
-
     /**
      * 서버로 전송할 값 정의
      * account : 유저가 입력한 로그인 아이디,
      * password : 유저가 입력한 로그인 비밀번호
      */
-    const account =  reqBody.userId;
-    const password =  reqBody.userPw;
+    const account = reqBody.userId;
+    const password = reqBody.userPw;
 
     /**
      * .env에 저장한 APIURL로 값 {account, password} post
@@ -68,53 +54,48 @@ export default function Login() {
     setReqBody(newInputs);
   };
 
-  const onSubmitEvent = () => {
-    console.log("onSubmit!");
-    loginEvent();
-  };
-
   const loginValidation = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    /**
+     * idChecker = 영문 필수, 숫자 허용, 특수기호(_ 만 허용) 최소 4글자  ~ 최대 12글자
+     * pwChecker = 영문 대, 소문자 + 숫자 + 특수기호 ( _,!,@,#,$,(,),%,^ 만 허용) 포함하여 최소 8자 ~ 최대 20자
+     * pwFirstString = PW 첫글자
+     */
     const idChecker = /^[A-Za-z\d\_]{4,12}$/;
-    const pwChecker =
-      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[_!@#$()%^])[A-Za-z\d_!@#$()%^]{8,20}$/;
+    const pwChecker = /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[_!@#$()%^]).{8,20}$/;
     const pwFirstString = reqBody.userPw[0];
-    let result = true;
-    if (!idChecker.test(reqBody.userId)) {
-      setUserIdValidation(
-        <div className={styles.fail_validation}>
-          <p>아이디를 다시 확인해주세요. </p>
-          <p>{"영문 필수 4~12글자 (숫자 및 _ 기호 사용가능)"}</p>
-        </div>
-      );
-      result = false;
-    } else {
-      setUserIdValidation(null);
+
+    /**
+     * ID 또는 PW 중 하나라도 비어있을 경우 알림 및 동작 중단
+     */
+    if (reqBody.userId === "" || reqBody.userPw === "") {
+      console.log("입력값이 비어있음.");
+      return alert("아이디 또는 패스워드를 입력하지 않았습니다.");
     }
+
+    /**
+     * 규칙에 따른 유효성 검사
+     * 성공 시 loginEvent 시작
+     */
     if (
-      !pwChecker.test(reqBody.userPw) ||
-      pwFirstString !== pwFirstString.toUpperCase()
+      idChecker.test(reqBody.userId) &&
+      pwChecker.test(reqBody.userPw) &&
+      pwFirstString === pwFirstString.toUpperCase()
     ) {
-      setUserPwValidation(
-        <div className={styles.fail_validation}>
-          <p>비밀번호를 다시 확인해주세요. </p>
-          <p>
-            {
-              "첫글자는 대문자이며 영문,숫자, ( _ ! @ # $ ( ) % ^ ) 기호 사용가능"
-            }
-          </p>
-        </div>
-      );
-      result = false;
-    } else {
-      setUserPwValidation(null);
+      console.log("success!");
+      return loginEvent();
     }
-    if (result) {
-      onSubmitEvent();
-    }
-    console.log(
-      "유효성검사 통과! " + " 아이디는 : " + reqBody.userId,
-      ", 암호는 : " + reqBody.userPw + " 입니다."
+
+    /**
+     * 유효성 검사 실패 시 유저에게 보여줄 메시지
+     */
+    setValidationComment(
+      <div className={styles.fail_validation}>
+        <p>아이디 또는 비밀번호를 다시 확인해주세요.</p>
+        <p>{"아이디 : 영문 필수 4~12글자 (숫자 및 _ 기호 사용가능)"}</p>
+        <p>{"비밀번호 : 첫 문자는 영문 대문자, 영문, 숫자, 특수기호 _ ! @ # $ ( ) % ^ 필수 4~12글자"}</p>
+      </div>
     );
   };
 
@@ -130,7 +111,6 @@ export default function Login() {
           onChange={handleValue}
           value={reqBody.userId}
         ></input>
-        {userIdValidation}
         <input
           type="password"
           className={styles.login_input}
@@ -139,8 +119,8 @@ export default function Login() {
           onChange={handleValue}
           value={reqBody.userPw}
         ></input>
-        {userPwValidation}
         <input type="submit" className={styles.login_submit} value="로그인" />
+        {validationComment}
       </form>
     </div>
   );
