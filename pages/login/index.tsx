@@ -7,11 +7,6 @@ type Login = {
   userPw: string;
 };
 
-// 리소스 접근 허용
-axios.defaults.headers["Access-Control-Allow-Origin"] = "*";
-// 서로 다른 도메인간 쿠키 전달 허용
-axios.defaults.withCredentials = true;
-
 export default function Login() {
   const [reqBody, setReqBody] = useState<Login>({
     userId: "",
@@ -35,12 +30,23 @@ export default function Login() {
   );
 
   const loginEvent = async () => {
-    const account = reqBody.userId;
-    const password = reqBody.userPw;
+
+    /**
+     * 서버로 전송할 값 정의
+     * account : 유저가 입력한 로그인 아이디,
+     * password : 유저가 입력한 로그인 비밀번호
+     */
+    const account =  reqBody.userId;
+    const password =  reqBody.userPw;
+
+    /**
+     * .env에 저장한 APIURL로 값 {account, password} post
+     */
     const response = await axios.post(
       process.env.NEXT_PUBLIC_API_URL + "api/login",
       { account, password }
     );
+
     if (
       response.status === 200 &&
       response.data.message === "login sucsses!!"
@@ -69,7 +75,7 @@ export default function Login() {
 
   const loginValidation = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const idChecker = /(?=.*[A-Za-z])[A-Za-z\d_]{4,12}$/;
+    const idChecker = /^[A-Za-z\d\_]{4,12}$/;
     const pwChecker =
       /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[_!@#$()%^])[A-Za-z\d_!@#$()%^]{8,20}$/;
     const pwFirstString = reqBody.userPw[0];
