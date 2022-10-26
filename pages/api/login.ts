@@ -12,9 +12,13 @@ export default function Handler(
 ) {
   let userData: Data = { account: "test", password: "Aasd123!" };
 
-  if(req.method === 'POST' && req.body.account === userData.account && req.body.password === userData.password){
-    res.json({ message : 'login sucsses!!' });
-  }else{
-    res.json({message : 'login fail!'})
+  if (
+    req.method === "POST" &&
+    req.body.account === userData.account &&
+    req.body.password === userData.password
+  ) {
+    res.json({ message: "login sucsses!!" });
+  } else {
+    res.json({ message: "login fail!" });
   }
 }

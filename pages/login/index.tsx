@@ -8,11 +8,13 @@ type Login = {
 };
 
 export default function Login() {
+  //login 입력값
   const [reqBody, setReqBody] = useState<Login>({
     userId: "",
     userPw: "",
   });
 
+  //Login 유효성검사 실패 시 발생메시지
   const [validationComment, setValidationComment] =
     useState<ReactElement | null>(null);
 
@@ -26,25 +28,35 @@ export default function Login() {
     const password = reqBody.userPw;
 
     /**
-     * .env에 저장한 APIURL로 값 {account, password} post
+     * try => .env에 저장한 APIURL로 값 {account, password} post
+     * 정상이라면 로그인성공 알림
+     *
+     * catch => 정상이 아닌 경우 서버로 부터 받아온 status를 확인
+     * 404번 이라면 유저의 id,pw값이 잘못되었다고 판단, 메시지 알림
+     * 그 외 에러가 발생한 것이라면 Web의 문제로 판단하고 메시지 알림
      */
-    const response = await axios.post(
-      process.env.NEXT_PUBLIC_API_URL + "api/login",
-      { account, password }
-    );
-
-    if (
-      response.status === 200 &&
-      response.data.message === "login sucsses!!"
-    ) {
-      alert("로그인 성공!");
-    } else if (response.status !== 200) {
-      alert("통신 실패!");
-    } else {
-      alert("로그인 실패! 다시 로그인 해주세요!");
+    try {
+      const res = await axios.post(
+        process.env.NEXT_PUBLIC_API_URL + "api/login",
+        {
+          account,
+          password,
+        }
+      );
+      if (res.status === 200) {
+        return alert("로그인 성공!");
+      }
+    } catch (err: any) {
+      if (err.response.status === 404) {
+        return alert(
+          "일치하는 계정이 존재하지 않습니다.\n아이디 또는 암호를 다시 확인해주세요."
+        );
+      }
+      return alert("페이지가 원활하지 않습니다.\n잠시 후 다시 이용해주세요.");
     }
   };
 
+  //입력값 setState
   const handleValue = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const newInputs = {
@@ -54,6 +66,7 @@ export default function Login() {
     setReqBody(newInputs);
   };
 
+  //로그인 입력 값 유효성 검사
   const loginValidation = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -94,7 +107,11 @@ export default function Login() {
       <div className={styles.fail_validation}>
         <p>아이디 또는 비밀번호를 다시 확인해주세요.</p>
         <p>{"아이디 : 영문 필수 4~12글자 (숫자 및 _ 기호 사용가능)"}</p>
-        <p>{"비밀번호 : 첫 문자는 영문 대문자, 영문, 숫자, 특수기호 _ ! @ # $ ( ) % ^ 필수 4~12글자"}</p>
+        <p>
+          {
+            "비밀번호 : 첫 문자는 영문 대문자, 영문, 숫자, 특수기호 _ ! @ # $ ( ) % ^ 필수 4~12글자"
+          }
+        </p>
       </div>
     );
   };
