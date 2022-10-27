@@ -1,4 +1,4 @@
-import { ChangeEvent, ReactElement, useState } from "react";
+import { ChangeEvent, ReactElement, useEffect, useState } from "react";
 import style from "../../styles/join.module.css";
 
 export default function Join() {
@@ -12,10 +12,13 @@ export default function Join() {
   });
 
   // 유효성검사 메시지
-  const [validationComment, setValidationComment] = useState(null);
+  const [validationComment, setValidationComment] =
+    useState<ReactElement | null>(null);
 
   // 암호 재확인 메시지
-  const [checkPwComment, setCheckPwComment] = useState(null);
+  const [checkPwComment, setCheckPwComment] = useState<ReactElement | null>(
+    null
+  );
 
   // Input onchange
   const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
@@ -27,6 +30,14 @@ export default function Join() {
 
     setReqBody(newValue);
   };
+
+  // 암호 재확인 Event
+  useEffect(() => {
+    if (reqBody.userPw !== reqBody.checkUserPw) {
+      return setCheckPwComment(<p>재확인 암호가 일치하지 않습니다.</p>);
+    }
+    return setCheckPwComment(null);
+  }, [reqBody.checkUserPw, reqBody.userPw]);
 
   return (
     <div className={style.container}>
@@ -60,7 +71,7 @@ export default function Join() {
         <input
           type="text"
           className={style.join_input}
-          name="name"
+          name="userName"
           placeholder="이름을 입력하세요."
           onChange={onChangeHandler}
           value={reqBody.userName}
@@ -68,7 +79,7 @@ export default function Join() {
         <input
           type="email"
           className={style.join_input}
-          name="name"
+          name="userEmail"
           placeholder="이메일을 입력하세요."
           onChange={onChangeHandler}
           value={reqBody.userEmail}
