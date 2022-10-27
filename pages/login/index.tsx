@@ -1,23 +1,22 @@
-import { ChangeEvent, FormEvent, ReactElement, useState } from "react";
+import { FormEvent, ReactElement, useState } from "react";
 import styles from "../../styles/login.module.css";
+import LoginResponseDto from "../../dto/response/LoginResponse";
+import LoginRequestDto from "../../dto/request/LoginRequest";
 import axios from "axios";
 
-type Login = {
-  userId: string;
-  userPw: string;
-};
-
 export default function Login() {
-  //login 입력값
-  const [reqBody, setReqBody] = useState<Login>({
-    userId: "",
-    userPw: "",
-  });
-
+  //Login 입력값
+  const [reqBody, setReqBody] = useState<LoginRequestDto>(
+    new LoginRequestDto("", "")
+  );
+  console.log(reqBody);
   //Login 유효성검사 실패 시 발생메시지
   const [validationComment, setValidationComment] =
     useState<ReactElement | null>(null);
 
+  //Response data
+  const [userDatas, setUserDatas] = useState<string | null>(null);
+  //Login event
   const loginEvent = async () => {
     /**
      * 서버로 전송할 값 정의
@@ -44,6 +43,14 @@ export default function Login() {
         }
       );
       if (res.status === 200) {
+        const resLoginData = new LoginResponseDto(
+          res.data.id,
+          res.data.account,
+          res.data.name,
+          res.data.created_at,
+          res.data.updated_at
+        );
+        setUserDatas(resLoginData.format());
         return alert("로그인 성공!");
       }
     } catch (err: any) {
@@ -56,17 +63,7 @@ export default function Login() {
     }
   };
 
-  //입력값 setState
-  const handleValue = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const newInputs = {
-      ...reqBody,
-      [name]: value,
-    };
-    setReqBody(newInputs);
-  };
-
-  //로그인 입력 값 유효성 검사
+  //Login 입력 값 유효성 검사
   const loginValidation = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -83,7 +80,6 @@ export default function Login() {
      * ID 또는 PW 중 하나라도 비어있을 경우 알림 및 동작 중단
      */
     if (reqBody.userId === "" || reqBody.userPw === "") {
-      console.log("입력값이 비어있음.");
       return alert("아이디 또는 패스워드를 입력하지 않았습니다.");
     }
 
@@ -96,7 +92,6 @@ export default function Login() {
       pwChecker.test(reqBody.userPw) &&
       pwFirstString === pwFirstString.toUpperCase()
     ) {
-      console.log("success!");
       return loginEvent();
     }
 
@@ -125,7 +120,9 @@ export default function Login() {
           className={styles.login_input}
           name="userId"
           placeholder="아이디를 입력하세요."
-          onChange={handleValue}
+          onChange={(e) => {
+            setReqBody(new LoginRequestDto(e.target.value, reqBody.userPw));
+          }}
           value={reqBody.userId}
         ></input>
         <input
@@ -133,12 +130,15 @@ export default function Login() {
           className={styles.login_input}
           name="userPw"
           placeholder="암호를 입력하세요."
-          onChange={handleValue}
+          onChange={(e) => {
+            setReqBody(new LoginRequestDto(reqBody.userId, e.target.value));
+          }}
           value={reqBody.userPw}
         ></input>
         <input type="submit" className={styles.login_submit} value="로그인" />
         {validationComment}
       </form>
+      {userDatas}
     </div>
   );
 }
