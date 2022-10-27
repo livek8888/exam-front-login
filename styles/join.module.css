@@ -6,7 +6,7 @@
   align-items: center;
 }
 
-.login_form {
+.join_form {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -22,13 +22,13 @@
   color: red;
 }
 
-.login_input {
+.join_input {
   margin: 10px;
   width: 180px;
   height: 25px;
 }
 
-.login_submit {
+.join_submit {
   margin-top: 10px;
   width: 187px;
   height: 35px;

@@ -9,6 +9,7 @@ export default function Header() {
       </div>
       <div>
         <Link href="/login">로그인</Link>
+        <Link href="/join">회원가입</Link>
       </div>
     </div>
   );

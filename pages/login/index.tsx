@@ -125,7 +125,7 @@ export default function Login() {
             setReqBody(new LoginRequestDto(e.target.value, reqBody.userPw));
           }}
           value={reqBody.userId}
-        ></input>
+        />
         <input
           type="password"
           className={style.login_input}
@@ -135,7 +135,7 @@ export default function Login() {
             setReqBody(new LoginRequestDto(reqBody.userId, e.target.value));
           }}
           value={reqBody.userPw}
-        ></input>
+        />
         <input type="submit" className={style.login_submit} value="로그인" />
         {validationComment}
       </form>
