@@ -1,5 +1,5 @@
 import { FormEvent, ReactElement, useState } from "react";
-import styles from "../../styles/login.module.css";
+import style from "../../styles/login.module.css";
 import LoginResponseDto from "../../dto/response/LoginResponse";
 import LoginRequestDto from "../../dto/request/LoginRequest";
 import axios from "axios";
@@ -9,13 +9,14 @@ export default function Login() {
   const [reqBody, setReqBody] = useState<LoginRequestDto>(
     new LoginRequestDto("", "")
   );
-  console.log(reqBody);
+
   //Login 유효성검사 실패 시 발생메시지
   const [validationComment, setValidationComment] =
     useState<ReactElement | null>(null);
 
   //Response data
   const [userDatas, setUserDatas] = useState<string | null>(null);
+
   //Login event
   const loginEvent = async () => {
     /**
@@ -99,7 +100,7 @@ export default function Login() {
      * 유효성 검사 실패 시 유저에게 보여줄 메시지
      */
     setValidationComment(
-      <div className={styles.fail_validation}>
+      <div className={style.fail_validation}>
         <p>아이디 또는 비밀번호를 다시 확인해주세요.</p>
         <p>{"아이디 : 영문 필수 4~12글자 (숫자 및 _ 기호 사용가능)"}</p>
         <p>
@@ -112,12 +113,12 @@ export default function Login() {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={style.container}>
       <h1>Login</h1>
-      <form className={styles.login_form} onSubmit={loginValidation}>
+      <form className={style.login_form} onSubmit={loginValidation}>
         <input
           type="text"
-          className={styles.login_input}
+          className={style.login_input}
           name="userId"
           placeholder="아이디를 입력하세요."
           onChange={(e) => {
@@ -127,7 +128,7 @@ export default function Login() {
         ></input>
         <input
           type="password"
-          className={styles.login_input}
+          className={style.login_input}
           name="userPw"
           placeholder="암호를 입력하세요."
           onChange={(e) => {
@@ -135,7 +136,7 @@ export default function Login() {
           }}
           value={reqBody.userPw}
         ></input>
-        <input type="submit" className={styles.login_submit} value="로그인" />
+        <input type="submit" className={style.login_submit} value="로그인" />
         {validationComment}
       </form>
       {userDatas}
