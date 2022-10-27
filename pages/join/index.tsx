@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { ChangeEvent, ReactElement, useState } from "react";
 import style from "../../styles/join.module.css";
 
 export default function Join() {
+  // Join 입력값
   const [reqBody, setReqBody] = useState({
     userId: "",
     userPw: "",
@@ -10,9 +11,22 @@ export default function Join() {
     userEmail: "",
   });
 
+  // 유효성검사 메시지
   const [validationComment, setValidationComment] = useState(null);
 
+  // 암호 재확인 메시지
   const [checkPwComment, setCheckPwComment] = useState(null);
+
+  // Input onchange
+  const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const newValue = {
+      ...reqBody,
+      [name]: value,
+    };
+
+    setReqBody(newValue);
+  };
 
   return (
     <div className={style.container}>
@@ -23,7 +37,7 @@ export default function Join() {
           className={style.join_input}
           name="userId"
           placeholder="아이디를 입력하세요."
-          // onChange={}
+          onChange={onChangeHandler}
           value={reqBody.userId}
         />
         <input
@@ -31,7 +45,7 @@ export default function Join() {
           className={style.join_input}
           name="userPw"
           placeholder="암호를 입력하세요."
-          // onChange={}
+          onChange={onChangeHandler}
           value={reqBody.userPw}
         />
         <input
@@ -39,7 +53,7 @@ export default function Join() {
           className={style.join_input}
           name="checkUserPw"
           placeholder="암호를 한번 더 입력하세요."
-          // onChange={}
+          onChange={onChangeHandler}
           value={reqBody.checkUserPw}
         />
         {checkPwComment}
@@ -48,7 +62,7 @@ export default function Join() {
           className={style.join_input}
           name="name"
           placeholder="이름을 입력하세요."
-          // onChange={}
+          onChange={onChangeHandler}
           value={reqBody.userName}
         />
         <input
@@ -56,7 +70,7 @@ export default function Join() {
           className={style.join_input}
           name="name"
           placeholder="이메일을 입력하세요."
-          // onChange={}
+          onChange={onChangeHandler}
           value={reqBody.userEmail}
         />
         <input type="submit" className={style.join_submit} value="회원가입" />
