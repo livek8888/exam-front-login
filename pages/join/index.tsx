@@ -1,4 +1,10 @@
-import { ChangeEvent, ReactElement, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  FormEvent,
+  ReactElement,
+  useEffect,
+  useState,
+} from "react";
 import style from "../../styles/join.module.css";
 
 export default function Join() {
@@ -31,6 +37,55 @@ export default function Join() {
     setReqBody(newValue);
   };
 
+  // 유효성검사
+  const joinValidation = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    /**
+     * idChecker = 영문 필수, 숫자 허용, 특수기호(_ 만 허용) 최소 4글자  ~ 최대 12글자
+     * pwChecker = 영문 대, 소문자 + 숫자 + 특수기호 ( _,!,@,#,$,(,),%,^ 만 허용) 포함하여 최소 8자 ~ 최대 20자
+     * pwFirstString = PW 첫글자
+     */
+    const idChecker = /^[A-Za-z\d\_]{4,12}$/;
+    const pwChecker = /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[_!@#$()%^]).{8,20}$/;
+    const pwFirstString = reqBody.userPw[0];
+
+    /**
+     * ID 또는 PW 중 하나라도 비어있을 경우 알림 및 동작 중단
+     */
+    if (reqBody.userId === "" || reqBody.userPw === "") {
+      return alert("비어있는 항목이 있습니다.\n 다시 확인 해주세요.");
+    }
+
+    /**
+     * 규칙에 따른 유효성 검사
+     * 성공 시 loginEvent 시작
+     */
+    if (
+      idChecker.test(reqBody.userId) &&
+      pwChecker.test(reqBody.userPw) &&
+      pwFirstString === pwFirstString.toUpperCase() &&
+      checkPwComment !== null
+    ) {
+      return console.log("유효성검사 통과");
+    }
+
+    /**
+     * 유효성 검사 실패 시 유저에게 보여줄 메시지
+     */
+    setValidationComment(
+      <div className={style.fail_validation}>
+        <p>아이디 또는 비밀번호를 다시 확인해주세요.</p>
+        <p>{"아이디 : 영문 필수 4~12글자 (숫자 및 _ 기호 사용가능)"}</p>
+        <p>
+          {
+            "비밀번호 : 첫 문자는 영문 대문자, 영문, 숫자, 특수기호 _ ! @ # $ ( ) % ^ 필수 4~12글자"
+          }
+        </p>
+      </div>
+    );
+  };
+
   // 암호 재확인 Event
   useEffect(() => {
     if (reqBody.userPw !== reqBody.checkUserPw) {
@@ -42,7 +97,7 @@ export default function Join() {
   return (
     <div className={style.container}>
       <h1>Join</h1>
-      <form className={style.join_form}>
+      <form className={style.join_form} onSubmit={joinValidation}>
         <input
           type="text"
           className={style.join_input}
