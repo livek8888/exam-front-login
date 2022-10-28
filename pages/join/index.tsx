@@ -12,11 +12,11 @@ export default function Join() {
 
   console.log(
     "입력한 가입정보" + "\n",
-    "아이디 : " + reqBody.userId + "\n",
-    "암호 : " + reqBody.userPw + "\n",
-    "암호 재확인 : " + reqBody.checkUserPw + "\n",
-    "이름 : " + reqBody.userName + "\n",
-    "이메일 : " + reqBody.userEmail
+    "아이디 : " + reqBody.Data.account + "\n",
+    "암호 : " + reqBody.Data.password + "\n",
+    "암호 재확인 : " + reqBody.Data.checkUserPw + "\n",
+    "이름 : " + reqBody.Data.name + "\n",
+    "이메일 : " + reqBody.Data.email
   );
 
   // 유효성검사 메시지
@@ -32,23 +32,27 @@ export default function Join() {
   const [userDatas, setUserDatas] = useState<string | null>(null);
 
   const requestAction = async () => {
-    const account = reqBody.userId;
-    const password = reqBody.userPw;
-    const name = reqBody.userName;
-    const email = reqBody.userEmail;
+    const account = reqBody.Data.account;
+    const password = reqBody.Data.password;
+    const name = reqBody.Data.name;
+    const email = reqBody.Data.email;
 
-    const res = await axios.post(process.env.NEXT_PUBLIC_API_URL + "api/join", {
-      account,
-      password,
-      name,
-      email,
-    });
     try {
-      if (res.status === 200) {
+      const res = await axios.post(
+        process.env.NEXT_PUBLIC_API_URL + "api/user",
+        {
+          account,
+          password,
+          name,
+          email,
+        }
+      );
+      if (res.status === 201) {
         const resJoinData = new JoinResponseDto(
           res.data.id,
           res.data.account,
           res.data.name,
+          res.data.email,
           res.data.created_at,
           res.data.updated_at
         );
@@ -58,8 +62,18 @@ export default function Join() {
         );
       }
     } catch (err: any) {
-      if (err.response.status === 404) {
-        return alert("error 404");
+      console.log(err);
+      if (
+        err.response.status === 409 &&
+        err.response.data.message === "account already exist"
+      ) {
+        return alert("이미 해당 아이디로 가입된 계정이 존재합니다.");
+      }
+      if (
+        err.response.status === 409 &&
+        err.response.data.message === "email already exist"
+      ) {
+        return alert("이미 해당 이메일로 가입된 계정이 존재합니다.");
       }
       return alert("페이지가 원활하지 않습니다.\n잠시 후 다시 이용해주세요.");
     }
@@ -80,16 +94,17 @@ export default function Join() {
     const idChecker = /^[A-Za-z\d\_]{4,12}$/;
     const pwChecker = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[_!@#$()%^]).{8,20}$/;
     const nameChecker = /^[가-힣]{2,10}|\s[a-zA-Z]{2,10}|[a-zA-Z]{2,10}$/;
-    const pwFirstString = reqBody.userPw[0];
+    const pwFirstString = reqBody.Data.password[0];
 
     /**
      * 가입정보 중 하나라도 비어있을 경우 알림 및 동작 중단
      */
     if (
-      reqBody.userId === "" ||
-      reqBody.userPw === "" ||
-      reqBody.userName === "" ||
-      reqBody.userEmail === ""
+      reqBody.Data.account === "" ||
+      reqBody.Data.password === "" ||
+      reqBody.Data.checkUserPw === "" ||
+      reqBody.Data.name === "" ||
+      reqBody.Data.email === ""
     ) {
       return alert("비어있는 항목이 있습니다.\n 다시 확인 해주세요.");
     }
@@ -99,9 +114,9 @@ export default function Join() {
      * 성공 시 JoinEvent 시작
      */
     if (
-      idChecker.test(reqBody.userId) &&
-      pwChecker.test(reqBody.userPw) &&
-      nameChecker.test(reqBody.userName) &&
+      idChecker.test(reqBody.Data.account) &&
+      pwChecker.test(reqBody.Data.password) &&
+      nameChecker.test(reqBody.Data.name) &&
       pwFirstString === pwFirstString.toUpperCase() &&
       checkPwComment === null
     ) {
@@ -128,11 +143,11 @@ export default function Join() {
 
   // 암호 재확인 Event
   useEffect(() => {
-    if (reqBody.userPw !== reqBody.checkUserPw) {
+    if (reqBody.Data.password !== reqBody.Data.checkUserPw) {
       return setCheckPwComment(<p>재확인 암호가 일치하지 않습니다.</p>);
     }
     return setCheckPwComment(null);
-  }, [reqBody.checkUserPw, reqBody.userPw]);
+  }, [reqBody.Data.password, reqBody.Data.checkUserPw]);
 
   return (
     <div className={style.container}>
