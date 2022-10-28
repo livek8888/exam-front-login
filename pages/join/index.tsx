@@ -1,18 +1,14 @@
 import axios from "axios";
-import {
-  ChangeEvent,
-  FormEvent,
-  ReactElement,
-  useEffect,
-  useState,
-} from "react";
-import JoinRequest from "../../dto/request/JoinRequest";
-import JoinResponse from "../../dto/response/JoinResponse";
+import { FormEvent, ReactElement, useEffect, useState } from "react";
+import JoinRequestDto from "../../dto/request/JoinRequest";
+import JoinResponseDto from "../../dto/response/JoinResponse";
 import style from "../../styles/join.module.css";
 
 export default function Join() {
   // Join 입력값
-  const [reqBody, setReqBody] = useState(new JoinRequest("", "", "", "", ""));
+  const [reqBody, setReqBody] = useState(
+    new JoinRequestDto("", "", "", "", "")
+  );
 
   console.log(
     "입력한 가입정보" + "\n",
@@ -49,7 +45,7 @@ export default function Join() {
     });
     try {
       if (res.status === 200) {
-        const resJoinData = new JoinResponse(
+        const resJoinData = new JoinResponseDto(
           res.data.id,
           res.data.account,
           res.data.name,
@@ -67,17 +63,6 @@ export default function Join() {
       }
       return alert("페이지가 원활하지 않습니다.\n잠시 후 다시 이용해주세요.");
     }
-  };
-
-  // Input onchange
-  const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const newValue = {
-      ...reqBody,
-      [name]: value,
-    };
-
-    setReqBody(newValue);
   };
 
   // 유효성검사
@@ -158,7 +143,17 @@ export default function Join() {
           className={style.join_input}
           name="userId"
           placeholder="아이디를 입력하세요."
-          onChange={onChangeHandler}
+          onChange={(e) => {
+            setReqBody(
+              new JoinRequestDto(
+                e.target.value,
+                reqBody.Data.password,
+                reqBody.Data.checkUserPw,
+                reqBody.Data.name,
+                reqBody.Data.email
+              )
+            );
+          }}
           value={reqBody.userId}
           minLength={4}
           maxLength={12}
@@ -168,7 +163,17 @@ export default function Join() {
           className={style.join_input}
           name="userPw"
           placeholder="암호를 입력하세요."
-          onChange={onChangeHandler}
+          onChange={(e) => {
+            setReqBody(
+              new JoinRequestDto(
+                reqBody.Data.account,
+                e.target.value,
+                reqBody.Data.checkUserPw,
+                reqBody.Data.name,
+                reqBody.Data.email
+              )
+            );
+          }}
           value={reqBody.userPw}
           minLength={8}
           maxLength={20}
@@ -178,7 +183,17 @@ export default function Join() {
           className={style.join_input}
           name="checkUserPw"
           placeholder="암호를 한번 더 입력하세요."
-          onChange={onChangeHandler}
+          onChange={(e) => {
+            setReqBody(
+              new JoinRequestDto(
+                reqBody.Data.account,
+                reqBody.Data.password,
+                e.target.value,
+                reqBody.Data.name,
+                reqBody.Data.email
+              )
+            );
+          }}
           value={reqBody.checkUserPw}
           minLength={8}
           maxLength={20}
@@ -189,7 +204,17 @@ export default function Join() {
           className={style.join_input}
           name="userName"
           placeholder="이름을 입력하세요."
-          onChange={onChangeHandler}
+          onChange={(e) => {
+            setReqBody(
+              new JoinRequestDto(
+                reqBody.Data.account,
+                reqBody.Data.password,
+                reqBody.Data.checkUserPw,
+                e.target.value,
+                reqBody.Data.email
+              )
+            );
+          }}
           value={reqBody.userName}
           minLength={2}
           maxLength={10}
@@ -199,7 +224,17 @@ export default function Join() {
           className={style.join_input}
           name="userEmail"
           placeholder="이메일을 입력하세요."
-          onChange={onChangeHandler}
+          onChange={(e) => {
+            setReqBody(
+              new JoinRequestDto(
+                reqBody.Data.account,
+                reqBody.Data.password,
+                reqBody.Data.checkUserPw,
+                reqBody.Data.name,
+                e.target.value
+              )
+            );
+          }}
           value={reqBody.userEmail}
         />
         <input type="submit" className={style.join_submit} value="회원가입" />

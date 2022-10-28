@@ -18,4 +18,14 @@ export default class JoinRequest {
       (this.userName = userName),
       (this.userEmail = userEmail);
   }
+
+  get Data() {
+    return {
+      account: this.userId,
+      password: this.userPw,
+      checkUserPw: this.checkUserPw,
+      name: this.userName,
+      email: this.userEmail,
+    };
+  }
 }
