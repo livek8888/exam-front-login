@@ -25,14 +25,4 @@ export default class JoinResponse {
   format() {
     return `회원번호 : ${this.id}, 아이디 : ${this.account}, 이름 : ${this.name}, 이메일 : ${this.email}, 가입일 : ${this.created_at}, 계정변경일 : ${this.updated_at}`;
   }
-
-  get Data() {
-    return {
-      id: this.id,
-      account: this.account,
-      name: this.name,
-      created_at: this.created_at,
-      updated_at: this.updated_at,
-    };
-  }
 }

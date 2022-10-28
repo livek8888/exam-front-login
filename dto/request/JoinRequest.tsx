@@ -1,31 +1,21 @@
 export default class JoinRequest {
-  public userId: string;
-  public userPw: string;
-  public checkUserPw: string;
-  public userName: string;
-  public userEmail: string;
+  public account: string;
+  public password: string;
+  public passwordCheck: string;
+  public name: string;
+  public email: string;
 
   constructor(
-    userId: string,
-    userPw: string,
-    checkUserPw: string,
-    userName: string,
-    userEmail: string
+    account: string,
+    password: string,
+    passwordCheck: string,
+    name: string,
+    email: string
   ) {
-    (this.userId = userId),
-      (this.userPw = userPw),
-      (this.checkUserPw = checkUserPw),
-      (this.userName = userName),
-      (this.userEmail = userEmail);
-  }
-
-  get Data() {
-    return {
-      account: this.userId,
-      password: this.userPw,
-      checkUserPw: this.checkUserPw,
-      name: this.userName,
-      email: this.userEmail,
-    };
+    (this.account = account),
+      (this.password = password),
+      (this.passwordCheck = passwordCheck),
+      (this.name = name),
+      (this.email = email);
   }
 }

@@ -19,29 +19,10 @@ export default function Login() {
 
   //Login event
   const loginEvent = async () => {
-    /**
-     * 서버로 전송할 값 정의
-     * account : 유저가 입력한 로그인 아이디,
-     * password : 유저가 입력한 로그인 비밀번호
-     */
-    const account = reqBody.userId;
-    const password = reqBody.userPw;
-
-    /**
-     * try => .env에 저장한 APIURL로 값 {account, password} post
-     * 정상이라면 로그인성공 알림
-     *
-     * catch => 정상이 아닌 경우 서버로 부터 받아온 status를 확인
-     * 404번 이라면 유저의 id,pw값이 잘못되었다고 판단, 메시지 알림
-     * 그 외 에러가 발생한 것이라면 Web의 문제로 판단하고 메시지 알림
-     */
     try {
       const res = await axios.post(
         process.env.NEXT_PUBLIC_API_URL + "api/login",
-        {
-          account,
-          password,
-        }
+        reqBody
       );
       if (res.status === 200) {
         const resLoginData = new LoginResponseDto(
@@ -68,37 +49,22 @@ export default function Login() {
   const loginValidation = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    /**
-     * idChecker = 영문 필수, 숫자 허용, 특수기호(_ 만 허용) 최소 4글자  ~ 최대 12글자
-     * pwChecker = 영문 대, 소문자 + 숫자 + 특수기호 ( _,!,@,#,$,(,),%,^ 만 허용) 포함하여 최소 8자 ~ 최대 20자
-     * pwFirstString = PW 첫글자
-     */
     const idChecker = /^[A-Za-z\d\_]{4,12}$/;
     const pwChecker = /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[_!@#$()%^]).{8,20}$/;
-    const pwFirstString = reqBody.userPw[0];
+    const pwFirstString = reqBody.password[0];
 
-    /**
-     * ID 또는 PW 중 하나라도 비어있을 경우 알림 및 동작 중단
-     */
-    if (reqBody.userId === "" || reqBody.userPw === "") {
+    if (reqBody.account === "" || reqBody.password === "") {
       return alert("아이디 또는 패스워드를 입력하지 않았습니다.");
     }
 
-    /**
-     * 규칙에 따른 유효성 검사
-     * 성공 시 loginEvent 시작
-     */
     if (
-      idChecker.test(reqBody.userId) &&
-      pwChecker.test(reqBody.userPw) &&
+      idChecker.test(reqBody.account) &&
+      pwChecker.test(reqBody.password) &&
       pwFirstString === pwFirstString.toUpperCase()
     ) {
       return loginEvent();
     }
 
-    /**
-     * 유효성 검사 실패 시 유저에게 보여줄 메시지
-     */
     setValidationComment(
       <div className={style.fail_validation}>
         <p>아이디 또는 비밀번호를 다시 확인해주세요.</p>
@@ -119,22 +85,22 @@ export default function Login() {
         <input
           type="text"
           className={style.login_input}
-          name="userId"
+          name="account"
           placeholder="아이디를 입력하세요."
           onChange={(e) => {
-            setReqBody(new LoginRequestDto(e.target.value, reqBody.userPw));
+            setReqBody(new LoginRequestDto(e.target.value, reqBody.password));
           }}
-          value={reqBody.userId}
+          value={reqBody.account}
         />
         <input
           type="password"
           className={style.login_input}
-          name="userPw"
+          name="password"
           placeholder="암호를 입력하세요."
           onChange={(e) => {
-            setReqBody(new LoginRequestDto(reqBody.userId, e.target.value));
+            setReqBody(new LoginRequestDto(reqBody.account, e.target.value));
           }}
-          value={reqBody.userPw}
+          value={reqBody.password}
         />
         <input type="submit" className={style.login_submit} value="로그인" />
         {validationComment}

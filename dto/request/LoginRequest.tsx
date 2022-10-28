@@ -1,8 +1,8 @@
 export default class LoginRequest {
-  public userId: string;
-  public userPw: string;
+  public account: string;
+  public password: string;
 
-  constructor(userId: string, userPw: string) {
-    (this.userId = userId), (this.userPw = userPw);
+  constructor(account: string, password: string) {
+    (this.account = account), (this.password = password);
   }
 }
