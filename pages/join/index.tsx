@@ -1,3 +1,4 @@
+import axios from "axios";
 import {
   ChangeEvent,
   FormEvent,
@@ -5,17 +6,22 @@ import {
   useEffect,
   useState,
 } from "react";
+import JoinRequest from "../../dto/request/JoinRequest";
+import JoinResponse from "../../dto/response/JoinResponse";
 import style from "../../styles/join.module.css";
 
 export default function Join() {
   // Join 입력값
-  const [reqBody, setReqBody] = useState({
-    userId: "",
-    userPw: "",
-    checkUserPw: "",
-    userName: "",
-    userEmail: "",
-  });
+  const [reqBody, setReqBody] = useState(new JoinRequest("", "", "", "", ""));
+
+  console.log(
+    "입력한 가입정보" + "\n",
+    "아이디 : " + reqBody.userId + "\n",
+    "암호 : " + reqBody.userPw + "\n",
+    "암호 재확인 : " + reqBody.checkUserPw + "\n",
+    "이름 : " + reqBody.userName + "\n",
+    "이메일 : " + reqBody.userEmail
+  );
 
   // 유효성검사 메시지
   const [validationComment, setValidationComment] =
@@ -25,6 +31,43 @@ export default function Join() {
   const [checkPwComment, setCheckPwComment] = useState<ReactElement | null>(
     null
   );
+
+  //Response data
+  const [userDatas, setUserDatas] = useState<string | null>(null);
+
+  const requestAction = async () => {
+    const account = reqBody.userId;
+    const password = reqBody.userPw;
+    const name = reqBody.userName;
+    const email = reqBody.userEmail;
+
+    const res = await axios.post(process.env.NEXT_PUBLIC_API_URL + "api/join", {
+      account,
+      password,
+      name,
+      email,
+    });
+    try {
+      if (res.status === 200) {
+        const resJoinData = new JoinResponse(
+          res.data.id,
+          res.data.account,
+          res.data.name,
+          res.data.created_at,
+          res.data.updated_at
+        );
+        setUserDatas(resJoinData.format());
+        return alert(
+          "회원가입 성공 \n" + resJoinData.Data.name + " 님 반갑습니다."
+        );
+      }
+    } catch (err: any) {
+      if (err.response.status === 404) {
+        return alert("error 404");
+      }
+      return alert("페이지가 원활하지 않습니다.\n잠시 후 다시 이용해주세요.");
+    }
+  };
 
   // Input onchange
   const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
@@ -77,7 +120,7 @@ export default function Join() {
       pwFirstString === pwFirstString.toUpperCase() &&
       checkPwComment === null
     ) {
-      return console.log("유효성검사 통과");
+      return requestAction();
     }
 
     /**
@@ -162,6 +205,7 @@ export default function Join() {
         <input type="submit" className={style.join_submit} value="회원가입" />
         {validationComment}
       </form>
+      {userDatas}
     </div>
   );
 }
