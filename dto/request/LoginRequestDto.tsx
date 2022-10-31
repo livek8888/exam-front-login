@@ -1,4 +1,4 @@
-export default class LoginRequest {
+export default class LoginRequestDto {
   public account: string;
   public password: string;
 

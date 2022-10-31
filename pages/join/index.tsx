@@ -1,14 +1,34 @@
 import axios from "axios";
-import { FormEvent, ReactElement, useEffect, useState } from "react";
-import JoinRequestDto from "../../dto/request/JoinRequest";
-import JoinResponseDto from "../../dto/response/JoinResponse";
+import {
+  ChangeEvent,
+  FormEvent,
+  ReactElement,
+  useEffect,
+  useState,
+} from "react";
+import JoinRequestDto from "../../dto/request/JoinRequestDto";
+import JoinResponseDto from "../../dto/response/JoinResponseDto";
 import style from "../../styles/join.module.css";
 
+interface IBody {
+  account: string;
+  password: string;
+  passwordCheck: string;
+  name: string;
+  email: string;
+}
+
 export default function Join() {
+  const JoinRequestData = new JoinRequestDto("", "", "", "", "");
+
   // Join 입력값
-  const [reqBody, setReqBody] = useState(
-    new JoinRequestDto("", "", "", "", "")
-  );
+  const [reqBody, setReqBody] = useState<IBody>({
+    account: "",
+    password: "",
+    passwordCheck: "",
+    name: "",
+    email: "",
+  });
 
   // 유효성검사 메시지
   const [validationComment, setValidationComment] =
@@ -26,7 +46,7 @@ export default function Join() {
     try {
       const res = await axios.post(
         process.env.NEXT_PUBLIC_API_URL + "api/user",
-        reqBody
+        JoinRequestData
       );
       if (res.status === 201) {
         const resJoinData = new JoinResponseDto(
@@ -87,6 +107,7 @@ export default function Join() {
       pwFirstString === pwFirstString.toUpperCase() &&
       checkPwComment === null
     ) {
+      Object.assign(JoinRequestData, reqBody);
       return requestAction();
     }
 
@@ -113,6 +134,13 @@ export default function Join() {
     return setCheckPwComment(null);
   }, [reqBody.password, reqBody.passwordCheck]);
 
+  // handle value
+  const handleValue = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const newValue = { ...reqBody, [name]: value };
+    setReqBody(newValue);
+  };
+
   return (
     <div className={style.container}>
       <h1>Join</h1>
@@ -120,19 +148,9 @@ export default function Join() {
         <input
           type="text"
           className={style.join_input}
-          name="userId"
+          name="account"
           placeholder="아이디를 입력하세요."
-          onChange={(e) => {
-            setReqBody(
-              new JoinRequestDto(
-                e.target.value,
-                reqBody.password,
-                reqBody.passwordCheck,
-                reqBody.name,
-                reqBody.email
-              )
-            );
-          }}
+          onChange={handleValue}
           value={reqBody.account}
           minLength={4}
           maxLength={12}
@@ -140,19 +158,9 @@ export default function Join() {
         <input
           type="password"
           className={style.join_input}
-          name="userPw"
+          name="password"
           placeholder="암호를 입력하세요."
-          onChange={(e) => {
-            setReqBody(
-              new JoinRequestDto(
-                reqBody.account,
-                e.target.value,
-                reqBody.passwordCheck,
-                reqBody.name,
-                reqBody.email
-              )
-            );
-          }}
+          onChange={handleValue}
           value={reqBody.password}
           minLength={8}
           maxLength={20}
@@ -162,17 +170,7 @@ export default function Join() {
           className={style.join_input}
           name="passwordCheck"
           placeholder="암호를 한번 더 입력하세요."
-          onChange={(e) => {
-            setReqBody(
-              new JoinRequestDto(
-                reqBody.account,
-                reqBody.password,
-                e.target.value,
-                reqBody.name,
-                reqBody.email
-              )
-            );
-          }}
+          onChange={handleValue}
           value={reqBody.passwordCheck}
           minLength={8}
           maxLength={20}
@@ -181,19 +179,9 @@ export default function Join() {
         <input
           type="text"
           className={style.join_input}
-          name="userName"
+          name="name"
           placeholder="이름을 입력하세요."
-          onChange={(e) => {
-            setReqBody(
-              new JoinRequestDto(
-                reqBody.account,
-                reqBody.password,
-                reqBody.passwordCheck,
-                e.target.value,
-                reqBody.email
-              )
-            );
-          }}
+          onChange={handleValue}
           value={reqBody.name}
           minLength={2}
           maxLength={10}
@@ -201,19 +189,9 @@ export default function Join() {
         <input
           type="email"
           className={style.join_input}
-          name="userEmail"
+          name="email"
           placeholder="이메일을 입력하세요."
-          onChange={(e) => {
-            setReqBody(
-              new JoinRequestDto(
-                reqBody.account,
-                reqBody.password,
-                reqBody.passwordCheck,
-                reqBody.name,
-                e.target.value
-              )
-            );
-          }}
+          onChange={handleValue}
           value={reqBody.email}
         />
         <input type="submit" className={style.join_submit} value="회원가입" />

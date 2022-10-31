@@ -1,4 +1,4 @@
-export default class JoinRequest {
+export default class JoinRequestDto {
   public account: string;
   public password: string;
   public passwordCheck: string;

@@ -1,14 +1,22 @@
-import { FormEvent, ReactElement, useState } from "react";
+import { ChangeEvent, FormEvent, ReactElement, useState } from "react";
 import style from "../../styles/login.module.css";
-import LoginResponseDto from "../../dto/response/LoginResponse";
-import LoginRequestDto from "../../dto/request/LoginRequest";
+import LoginResponseDto from "../../dto/response/LoginResponseDto";
+import LoginRequestDto from "../../dto/request/LoginRequestDto";
 import axios from "axios";
 
+interface Ibody {
+  account: string;
+  password: string;
+}
+
 export default function Login() {
+  const LoginRequestData = new LoginRequestDto("", "");
+
   //Login 입력값
-  const [reqBody, setReqBody] = useState<LoginRequestDto>(
-    new LoginRequestDto("", "")
-  );
+  const [reqBody, setReqBody] = useState<Ibody>({
+    account: "",
+    password: "",
+  });
 
   //Login 유효성검사 실패 시 발생메시지
   const [validationComment, setValidationComment] =
@@ -22,7 +30,7 @@ export default function Login() {
     try {
       const res = await axios.post(
         process.env.NEXT_PUBLIC_API_URL + "api/login",
-        reqBody
+        LoginRequestData
       );
       if (res.status === 200) {
         const resLoginData = new LoginResponseDto(
@@ -62,6 +70,7 @@ export default function Login() {
       pwChecker.test(reqBody.password) &&
       pwFirstString === pwFirstString.toUpperCase()
     ) {
+      Object.assign(LoginRequestData, reqBody);
       return loginEvent();
     }
 
@@ -78,6 +87,13 @@ export default function Login() {
     );
   };
 
+  // handle value
+  const handleValue = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const newValue = { ...reqBody, [name]: value };
+    setReqBody(newValue);
+  };
+
   return (
     <div className={style.container}>
       <h1>Login</h1>
@@ -87,9 +103,7 @@ export default function Login() {
           className={style.login_input}
           name="account"
           placeholder="아이디를 입력하세요."
-          onChange={(e) => {
-            setReqBody(new LoginRequestDto(e.target.value, reqBody.password));
-          }}
+          onChange={handleValue}
           value={reqBody.account}
         />
         <input
@@ -97,9 +111,7 @@ export default function Login() {
           className={style.login_input}
           name="password"
           placeholder="암호를 입력하세요."
-          onChange={(e) => {
-            setReqBody(new LoginRequestDto(reqBody.account, e.target.value));
-          }}
+          onChange={handleValue}
           value={reqBody.password}
         />
         <input type="submit" className={style.login_submit} value="로그인" />
