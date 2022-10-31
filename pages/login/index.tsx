@@ -3,6 +3,7 @@ import style from "../../styles/login.module.css";
 import LoginResponseDto from "../../dto/response/LoginResponseDto";
 import LoginRequestDto from "../../dto/request/LoginRequestDto";
 import axios from "axios";
+import InputComponent from "../../components/InputComponent";
 
 interface Ibody {
   account: string;
@@ -98,21 +99,21 @@ export default function Login() {
     <div className={style.container}>
       <h1>Login</h1>
       <form className={style.login_form} onSubmit={loginValidation}>
-        <input
+        <InputComponent
           type="text"
-          className={style.login_input}
           name="account"
-          placeholder="아이디를 입력하세요."
+          holdStr="아이디를 입력하세요."
           onChange={handleValue}
           value={reqBody.account}
+          length={{ min: 4, max: 12 }}
         />
-        <input
+        <InputComponent
           type="password"
-          className={style.login_input}
           name="password"
-          placeholder="암호를 입력하세요."
+          holdStr="암호를 입력하세요."
           onChange={handleValue}
           value={reqBody.password}
+          length={{ min: 8, max: 20 }}
         />
         <input type="submit" className={style.login_submit} value="로그인" />
         {validationComment}

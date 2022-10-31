@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import InputComponent from "../../components/InputComponent";
 import JoinRequestDto from "../../dto/request/JoinRequestDto";
 import JoinResponseDto from "../../dto/response/JoinResponseDto";
 import style from "../../styles/join.module.css";
@@ -139,58 +140,50 @@ export default function Join() {
     const { name, value } = e.target;
     const newValue = { ...reqBody, [name]: value };
     setReqBody(newValue);
+    console.log(reqBody);
   };
 
   return (
     <div className={style.container}>
       <h1>Join</h1>
       <form className={style.join_form} onSubmit={joinValidation}>
-        <input
+        <InputComponent
           type="text"
-          className={style.join_input}
           name="account"
-          placeholder="아이디를 입력하세요."
+          holdStr="아이디를 입력하세요."
           onChange={handleValue}
           value={reqBody.account}
-          minLength={4}
-          maxLength={12}
+          length={{ min: 4, max: 12 }}
         />
-        <input
+        <InputComponent
           type="password"
-          className={style.join_input}
           name="password"
-          placeholder="암호를 입력하세요."
+          holdStr="암호를 입력하세요."
           onChange={handleValue}
           value={reqBody.password}
-          minLength={8}
-          maxLength={20}
+          length={{ min: 8, max: 20 }}
         />
-        <input
+        <InputComponent
           type="password"
-          className={style.join_input}
           name="passwordCheck"
-          placeholder="암호를 한번 더 입력하세요."
+          holdStr="암호를 한번 더 입력하세요."
           onChange={handleValue}
           value={reqBody.passwordCheck}
-          minLength={8}
-          maxLength={20}
+          length={{ min: 8, max: 20 }}
         />
         {checkPwComment}
-        <input
+        <InputComponent
           type="text"
-          className={style.join_input}
           name="name"
-          placeholder="이름을 입력하세요."
+          holdStr="이름을 입력하세요."
           onChange={handleValue}
           value={reqBody.name}
-          minLength={2}
-          maxLength={10}
+          length={{ min: 2, max: 10 }}
         />
-        <input
+        <InputComponent
           type="email"
-          className={style.join_input}
           name="email"
-          placeholder="이메일을 입력하세요."
+          holdStr="이메일을 입력하세요."
           onChange={handleValue}
           value={reqBody.email}
         />
