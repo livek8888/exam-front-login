@@ -6,30 +6,15 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import InputComponent from "../../components/InputComponent";
-import JoinRequestDto from "../../dto/request/JoinRequestDto";
-import JoinResponseDto from "../../dto/response/JoinResponseDto";
 import style from "../../styles/join.module.css";
 
-interface IBody {
-  account: string;
-  password: string;
-  passwordCheck: string;
-  name: string;
-  email: string;
-}
-
 export default function Join() {
-  const JoinRequestData = new JoinRequestDto("", "", "", "", "");
-
-  // Join 입력값
-  const [reqBody, setReqBody] = useState<IBody>({
-    account: "",
-    password: "",
-    passwordCheck: "",
-    name: "",
-    email: "",
-  });
+  // React-redux
+  const JoinInputData = useSelector((state: any) => state.JoinRequestData);
+  const dispatch = useDispatch();
+  console.log(JoinInputData);
 
   // 유효성검사 메시지
   const [validationComment, setValidationComment] =
@@ -40,29 +25,26 @@ export default function Join() {
     null
   );
 
-  //Response data
+  // Response값 화면에 표시할 String State
   const [userDatas, setUserDatas] = useState<string | null>(null);
 
+  // 회원가입 서버 통신
   const requestAction = async () => {
     try {
       const res = await axios.post(
         process.env.NEXT_PUBLIC_API_URL + "api/user",
-        JoinRequestData
+        JoinInputData
       );
       if (res.status === 201) {
-        const resJoinData = new JoinResponseDto(
-          res.data.id,
-          res.data.account,
-          res.data.name,
-          res.data.email,
-          res.data.created_at,
-          res.data.updated_at
+        dispatch({ type: "RESPONSE", data: res });
+        setUserDatas(
+          `Hi!, 아이디: ${JoinInputData.account}, 비밀번호: ${JoinInputData.password}, 이름: ${JoinInputData.name}, 이메일: ${JoinInputData.email}`
         );
-        setUserDatas(resJoinData.format());
-        return alert("회원가입 성공 \n" + resJoinData.name + " 님 반갑습니다.");
+        return alert(
+          "회원가입 성공 \n" + JoinInputData.name + " 님 반갑습니다."
+        );
       }
     } catch (err: any) {
-      console.log(err);
       if (
         err.response.status === 409 &&
         err.response.data.message === "account already exist"
@@ -89,26 +71,25 @@ export default function Join() {
     const idChecker = /^[A-Za-z\d\_]{4,12}$/;
     const pwChecker = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[_!@#$()%^]).{8,20}$/;
     const nameChecker = /^[가-힣]{2,10}|\s[a-zA-Z]{2,10}|[a-zA-Z]{2,10}$/;
-    const pwFirstString = reqBody.password[0];
+    const pwFirstString = JoinInputData.password[0];
 
     if (
-      reqBody.account === "" ||
-      reqBody.password === "" ||
-      reqBody.passwordCheck === "" ||
-      reqBody.name === "" ||
-      reqBody.email === ""
+      JoinInputData.account === "" ||
+      JoinInputData.password === "" ||
+      JoinInputData.passwordCheck === "" ||
+      JoinInputData.name === "" ||
+      JoinInputData.email === ""
     ) {
       return alert("비어있는 항목이 있습니다.\n 다시 확인 해주세요.");
     }
 
     if (
-      idChecker.test(reqBody.account) &&
-      pwChecker.test(reqBody.password) &&
-      nameChecker.test(reqBody.name) &&
+      idChecker.test(JoinInputData.account) &&
+      pwChecker.test(JoinInputData.password) &&
+      nameChecker.test(JoinInputData.name) &&
       pwFirstString === pwFirstString.toUpperCase() &&
       checkPwComment === null
     ) {
-      Object.assign(JoinRequestData, reqBody);
       return requestAction();
     }
 
@@ -129,18 +110,17 @@ export default function Join() {
 
   // 암호 재확인 Event
   useEffect(() => {
-    if (reqBody.password !== reqBody.passwordCheck) {
+    if (JoinInputData.password !== JoinInputData.passwordCheck) {
       return setCheckPwComment(<p>재확인 암호가 일치하지 않습니다.</p>);
     }
     return setCheckPwComment(null);
-  }, [reqBody.password, reqBody.passwordCheck]);
+  }, [JoinInputData.password, JoinInputData.passwordCheck]);
 
   // handle value
   const handleValue = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    const newValue = { ...reqBody, [name]: value };
-    setReqBody(newValue);
-    console.log(reqBody);
+    const newValue = { ...JoinInputData, [name]: value };
+    dispatch({ type: "VALUE_CHANGE", data: newValue });
   };
 
   return (
@@ -152,7 +132,7 @@ export default function Join() {
           name="account"
           holdStr="아이디를 입력하세요."
           onChange={handleValue}
-          value={reqBody.account}
+          value={JoinInputData.account}
           length={{ min: 4, max: 12 }}
         />
         <InputComponent
@@ -160,7 +140,7 @@ export default function Join() {
           name="password"
           holdStr="암호를 입력하세요."
           onChange={handleValue}
-          value={reqBody.password}
+          value={JoinInputData.password}
           length={{ min: 8, max: 20 }}
         />
         <InputComponent
@@ -168,7 +148,7 @@ export default function Join() {
           name="passwordCheck"
           holdStr="암호를 한번 더 입력하세요."
           onChange={handleValue}
-          value={reqBody.passwordCheck}
+          value={JoinInputData.passwordCheck}
           length={{ min: 8, max: 20 }}
         />
         {checkPwComment}
@@ -177,7 +157,7 @@ export default function Join() {
           name="name"
           holdStr="이름을 입력하세요."
           onChange={handleValue}
-          value={reqBody.name}
+          value={JoinInputData.name}
           length={{ min: 2, max: 10 }}
         />
         <InputComponent
@@ -185,7 +165,7 @@ export default function Join() {
           name="email"
           holdStr="이메일을 입력하세요."
           onChange={handleValue}
-          value={reqBody.email}
+          value={JoinInputData.email}
         />
         <input type="submit" className={style.join_submit} value="회원가입" />
         {validationComment}
